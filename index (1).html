@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Valentine?</title>
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #fff;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      position: absolute;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    /* Yes (initially locked) */
+    #yes {
+      background-color: #4CAF50;
+      color: white;
+      left: 45%;
+      top: 55%;
+      opacity: 0.6;
+      pointer-events: none; /* locked until unlocked */
+      cursor: not-allowed;
+    }
+
+    /* When unlocked, we'll set pointer-events:auto and restore opacity */
+    #yes.unlocked {
+      opacity: 1;
+      pointer-events: auto;
+      cursor: pointer;
+      transform: scale(1.02);
+    }
+
+    #no {
+      background-color: #f44336;
+      color: white;
+      left: 55%;
+      top: 55%;
+    }
+
+    /* small hint text when unlocked */
+    #hint {
+      position: absolute;
+      top: 15%;
+      color: white;
+      font-weight: 600;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>Will you be my Valentine? 💘</h1>
+
+  <div id="hint">You unlocked the "Yes" button — go ahead! 💖</div>
+
+  <!-- Yes starts locked (disabled). User must press "No" once to unlock. -->
+  <button id="yes" onclick="yesClicked()">Yes 💖</button>
+
+  <!-- "No" must be pressed once to unlock "Yes". Subsequent clicks make "No" playful. -->
+  <button id="no" onclick="noClicked()">No 🙄</button>
+
+  <script>
+    // state to track whether "no" has been pressed at least once
+    let noPressed = false;
+
+    const yesBtn = document.getElementById("yes");
+    const noBtn = document.getElementById("no");
+    const hint = document.getElementById("hint");
+
+    // Move the "No" button to a random location (keeps it inside viewport)
+    function moveNo() {
+      const paddingX = 120; // leave some margin so buttons stay visible
+      const paddingY = 80;
+      const x = Math.random() * (window.innerWidth - paddingX);
+      const y = Math.random() * (window.innerHeight - paddingY);
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    // Called when user clicks "No"
+    function noClicked() {
+      if (!noPressed) {
+        // First click: unlock "Yes"
+        noPressed = true;
+        yesBtn.classList.add("unlocked");
+        // ensure yes is clickable even if pointer-events style was set
+        yesBtn.style.pointerEvents = "auto";
+        hint.style.display = "block";
+
+        // Optionally give a little visual feedback on the No button
+        noBtn.style.transform = "scale(0.98)";
+        setTimeout(() => { noBtn.style.transform = ""; }, 120);
+      } else {
+        // Subsequent clicks: make No playful and run away a bit
+        moveNo();
+      }
+    }
+
+    function yesClicked() {
+      document.body.innerHTML = "<h1>YAYYY 😍💖 I knew it!!!</h1>";
+    }
+
+    // ensure buttons are positioned reasonably on load
+    window.addEventListener('load', () => {
+      // set default positions if not already set by CSS
+      if (!yesBtn.style.left) yesBtn.style.left = '45%';
+      if (!yesBtn.style.top) yesBtn.style.top = '55%';
+      if (!noBtn.style.left) noBtn.style.left = '55%';
+      if (!noBtn.style.top) noBtn.style.top = '55%';
+    });
+
+    // optional: keep No from going underneath cursor on small moves (improves UX)
+    noBtn.addEventListener('mousemove', (e) => {
+      // small chance to move away when the user lingers, but not before first click
+      if (noPressed && Math.random() > 0.7) {
+        moveNo();
+      }
+    });
+  </script>
+
+</body>
+</html>
